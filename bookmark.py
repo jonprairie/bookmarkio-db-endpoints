@@ -22,6 +22,15 @@ def register(username):
         return {'result': False, 'message': "user already exists"}
 
 
+@hug.post('/api/v1/addbm')
+def add_bookmark(username, name, url, description):
+    result = db.add_bookmark(username, name, url, description)
+    if result:
+        return {'result': True}
+    else:
+        return {'result': False, 'message': "could not add bookmark"}
+
+
 @hug.response_middleware()
 def add_access_control(request, response, resource):
     response.set_header('Access-Control-Allow-Origin', 'http://192.168.1.61')

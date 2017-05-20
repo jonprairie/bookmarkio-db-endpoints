@@ -2,41 +2,56 @@
 
 import sqlite3
 
+table_definitions = {
+    'users': "username TEXT PRIMARY KEY",
+    'bookmarks': "username TEXT, name TEXT, url TEXT, description TEXT, PRIMARY KEY (username, name)"
+}
 
-def create_user_table():
+
+def create_table(table):
     conn = sqlite3.connect('bookmark.db')
     try:
         c = conn.cursor()
-        c.execute('CREATE TABLE users (username TEXT PRIMARY KEY)')
+        table_def = table_definitions[table]
+        c.execute('CREATE TABLE %s (%s)' % (table, table_def))
         conn.commit()
     except:
-        print('could not create users table')
+        print('could not create table: %s' % table)
         raise
     finally:
         conn.close()
 
 
-def drop_user_table():
+def drop_table(table):
     conn = sqlite3.connect('bookmark.db')
     try:
         c = conn.cursor()
-        c.execute('DROP TABLE users')
+        c.execute('DROP TABLE %s' % table)
         conn.commit()
     except:
-        print('could not drop users table')
+        print('could not drop table: %s' % table)
         raise
     finally:
         conn.close()
     
 
-def reset_user_table():
+def reset_table(table):
     try:
-        drop_user_table()
-        create_user_table()
+        drop_table(table)
+        create_table(table)
         return True
     except:
         return False
     
+
+def reset_db():
+    for table in table_definitions.keys():
+        try:
+            reset_table(table)
+        except:
+            print('could not reset table: %s' % table)
+            raise
+
 
 def add_user(username):
     try:
@@ -49,6 +64,7 @@ def add_user(username):
         return False
     finally:
         conn.close()
+
 
 def get_user(username):
     try:
