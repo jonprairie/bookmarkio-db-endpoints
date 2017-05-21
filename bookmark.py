@@ -31,6 +31,15 @@ def add_bookmark(username, name, url, description):
         return {'result': False, 'message': "could not add bookmark"}
 
 
+@hug.get('/api/v1/lsbm')
+def list_bookmarks(username):
+    result = db.get_bookmarks(username)
+    if result:
+        return {'result': True, 'data': result}
+    else:
+        return {'result': False, 'message': "something bad happened"}
+
+
 @hug.response_middleware()
 def add_access_control(request, response, resource):
     response.set_header('Access-Control-Allow-Origin', 'http://192.168.1.61')

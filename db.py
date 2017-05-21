@@ -99,9 +99,10 @@ def add_bookmark(username, name, url, description):
 def get_bookmarks(username):
     try:
         conn = connect_db()
+        conn.row_factory = sqlite3.Row
         c = conn.cursor()
         c.execute('SELECT * FROM bookmarks WHERE username = ?', [username])
-        return list(c.fetchall())
+        return list(map(dict, c.fetchall()))
     except:
         return False
     finally:
