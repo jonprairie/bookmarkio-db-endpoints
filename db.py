@@ -2,15 +2,19 @@
 
 import sqlite3
 
+db_name = 'bookmark.db'
+
 table_definitions = {
     'users': "username TEXT PRIMARY KEY",
     'bookmarks': "username TEXT, name TEXT, url TEXT, description TEXT, PRIMARY KEY (username, name)"
 }
 
+def connect_db():
+    return sqlite3.connect(db_name)
 
 def create_table(table):
-    conn = sqlite3.connect('bookmark.db')
     try:
+        conn = connect_db()
         c = conn.cursor()
         table_def = table_definitions[table]
         c.execute('CREATE TABLE %s (%s)' % (table, table_def))
@@ -23,8 +27,8 @@ def create_table(table):
 
 
 def drop_table(table):
-    conn = sqlite3.connect('bookmark.db')
     try:
+        conn = connect_db()
         c = conn.cursor()
         c.execute('DROP TABLE %s' % table)
         conn.commit()
@@ -55,7 +59,7 @@ def reset_db():
 
 def add_user(username):
     try:
-        conn = sqlite3.connect('bookmark.db')
+        conn = connect_db()
         c = conn.cursor()
         c.execute('INSERT INTO users VALUES (?)', [username])
         conn.commit()
@@ -68,10 +72,36 @@ def add_user(username):
 
 def get_user(username):
     try:
-        conn = sqlite3.connect('bookmark.db')
+        conn = connect_db()
         c = conn.cursor()
         c.execute('SELECT username FROM users WHERE username = ?', [username])
         return c.fetchone()[0]
+    except:
+        return False
+    finally:
+        conn.close()
+
+def add_bookmark(username, name, url, description):
+    try:
+        conn = connect_db()
+        c = conn.cursor()
+        c.execute(
+            'INSERT INTO bookmarks VALUES (?, ?, ?, ?)',
+            (username, name, url, description)
+        )
+        conn.commit()
+        return True
+    except:
+        return False
+    finally:
+        conn.close()
+
+def get_bookmarks(username):
+    try:
+        conn = connect_db()
+        c = conn.cursor()
+        c.execute('SELECT * FROM bookmarks WHERE username = ?', [username])
+        return list(c.fetchall())
     except:
         return False
     finally:
