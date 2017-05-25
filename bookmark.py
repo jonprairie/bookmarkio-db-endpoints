@@ -23,8 +23,8 @@ def register(username):
 
 
 @hug.post('/api/v1/addbm')
-def add_bookmark(username, name, url, description):
-    result = db.add_bookmark(username, name, url, description)
+def add_bookmark(username, bmname, bmurl, bmdesc):
+    result = db.add_bookmark(username, bmname, bmurl, bmdesc)
     if result:
         return {'result': True}
     else:

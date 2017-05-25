@@ -1,16 +1,20 @@
 """database interface for bookmark.io"""
 
 import sqlite3
+from collections import OrderedDict
 
 db_name = 'bookmark.db'
 
-table_definitions = {
-    'users': "username TEXT PRIMARY KEY",
-    'bookmarks': "username TEXT, name TEXT, url TEXT, description TEXT, PRIMARY KEY (username, name)"
-}
+table_definitions = OrderedDict({
+    'users': "username TEXT NOT NULL PRIMARY KEY",
+    'bookmarks': "username TEXT NOT NULL, name TEXT NOT NULL, url TEXT NOT NULL, description TEXT, PRIMARY KEY (username, name), FOREIGN KEY(username) REFERENCES users(username)" 
+})
 
 def connect_db():
-    return sqlite3.connect(db_name)
+    conn = sqlite3.connect(db_name)
+    c = conn.cursor()
+    c.execute("PRAGMA foreign_keys = ON;")
+    return conn
 
 def create_table(table):
     try:
@@ -55,6 +59,19 @@ def reset_db():
         except:
             print('could not reset table: %s' % table)
             raise
+
+
+def dump_table(table):
+    try:
+        conn = connect_db()
+        c = conn.cursor()
+        c.execute('SELECT * FROM %s' % table)
+        return list(c.fetchall())
+    except:
+        print('could not dump table')
+        raise
+    finally:
+        conn.close()
 
 
 def add_user(username):
